@@ -30,4 +30,3 @@ const query = new pgPromise.QueryFile(filePath);
 pg.query(query);
 
 export default pg;
-

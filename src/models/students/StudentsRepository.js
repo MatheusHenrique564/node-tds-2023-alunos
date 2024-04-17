@@ -1,32 +1,74 @@
+import pg from "../../database/index.js";
+
 export class StudentsRepository {
   constructor() {
-    this.students = [];
+    this.pg = pg;
   }
 
-  getStudents() {
-    return this.students;
+  async getStudents() {
+    try {
+      const students = await this.pg.query("SELECT * FROM students");
+      console.log(students);
+      return students;
+    }
+    catch (error) {
+      console.error('Falid to get all students ', error);
+      throw error;
+    }
   }
 
-  getStudentById(id) {
-    return this.students.find((student) => student.id === id);
+  async getStudentById(id) {
+    try {
+      const student = await this.pg.oneOrNone("SELECT * FROM students WHERE id = $1", [id]);
+      console.log(student);
+      return student;
+    }
+    catch (error) {
+      console.error('Falid to get student by id ', id, error);
+      throw error;
+        }
   }
 
-  addStudent(student) {
-    this.students.push(student);
+  async getStudentByCode(code) {
+    try {
+      const student = await this.pg.oneOrNone("SELECT * FROM students WHERE code = $1", [code]);
+      console.log(student);
+      return student;
+    }
+    catch (error) {
+      console.error('Falid to get student by code ', code, error);
+      throw error;
+    }
   }
 
-  updateStudent(id, name, age) {
-    const student = this.getStudentById(id);
+  async addStudent(student) {
+    try {
+      await this.pg.none("INSERT INTO students (id, name, age, email, code, grade) VALUES ($1, $2, $3, $4, $5, $6)", [student.id, student.name, student.age, student.email, student.code, student.grade]);
+    }
+    catch (error) {
+      console.error('Falid to create student ', error);
+      throw error;
+    }
+  }
 
-    if (student) {
-      student.name = name;
-      student.age = age;
+  async updateStudent(id, name, age, email, code, grade) {
+    try {
+      await this.pg.none("UPDATE students SET name = $1, age = $2, email = $3, code = $4, grade = $5 WHERE id = $6", [name, age, email, code, grade, id]);
+    }
+    catch (error) {
+      console.error('Falid to update student ', error);
+      throw error;
     }
 
-    return student;
   }
 
-  deleteStudent(id) {
-    this.students = this.students.filter((student) => student.id !== id);
+  async deleteStudent(id) {
+    try {
+      await this.pg.none("DELETE FROM students WHERE id = $1", [id]);
+    }
+    catch (error) {
+      console.error('Falid to delete student ', error);
+      throw error;
+    }
   }
 }
